@@ -15,6 +15,10 @@
 </template>
 
 <script>
+  import {Message} from 'element-ui'
+  import {login} from '../api'
+  import * as store from '../utils/store'
+
   export default {
     data() {
       return {
@@ -44,7 +48,18 @@
           valid && this.handleLogin()
         })
       },
-      handleLogin() {
+      async handleLogin() {
+        try {
+          const res = await login(this.model)
+          if (res.error) {
+            throw new Error(res.error.message)
+          } else {
+            store.set('merchant', res.data)
+            await this.$router.replace('/')
+          }
+        } catch (err) {
+          Message.error(err.message)
+        }
       }
     }
   }
