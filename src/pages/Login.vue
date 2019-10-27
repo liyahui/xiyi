@@ -70,6 +70,9 @@
           Message.error(err.message)
         }
       }
+    },
+    created() {
+      document.title = '登录'
     }
   }
 </script>

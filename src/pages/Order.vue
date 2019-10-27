@@ -224,6 +224,9 @@
     },
     mounted() {
       this.getPageData()
+    },
+    created() {
+      document.title = this.title
     }
   }
 </script>
