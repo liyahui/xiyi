@@ -21,8 +21,10 @@ axios.interceptors.response.use(response => {
 })
 
 export function login(data) {
-  data.pwd = md5(data.pwd)
-  return axios.post('login/merchant', data)
+  return axios.post('login/merchant', {
+    ...data,
+    pwd: md5(data.pwd)
+  })
 }
 
 export function getOrderList(params) {

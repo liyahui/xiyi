@@ -25,22 +25,27 @@
       <el-form-item label="下单门店">
         {{data.merchantBrand || '-'}}
       </el-form-item>
-      <el-form-item label-width="0" class="textarea">
-        <el-input type="textarea" placeholder="备注" resize="none" v-model="remark"></el-input>
-      </el-form-item>
-      <el-form-item label-width="0" class="button">
-        <el-button type="primary" style="width: 100%" @click="handleOrderConfirm">确认收到衣服</el-button>
-      </el-form-item>
+      <template v-if="[1, 5].includes(data.orderStatus)">
+        <el-form-item label-width="0" class="textarea">
+          <el-input type="textarea" placeholder="备注" resize="none" v-model="remark"></el-input>
+        </el-form-item>
+        <el-form-item label-width="0" class="button">
+          <el-button type="primary" style="width: 100%" @click="handleOrderConfirm">确认收到衣服</el-button>
+        </el-form-item>
+      </template>
     </el-form>
   </div>
 </template>
 
 <script>
-  import {orderStatusList, orderConfirmActionMap} from '../utils/constants'
-  import {confirmOrder} from '../api'
-  import {Message} from 'element-ui'
+  import {orderStatusList} from '../utils/constants'
+  import {Form, FormItem, Input, Button} from 'element-ui'
+  import {registerElementUI} from '../utils'
 
   export default {
+    components: {
+      ...registerElementUI([Form, FormItem, Input, Button])
+    },
     props: {
       data: {
         type: Object
@@ -62,20 +67,7 @@
     },
     methods: {
       async handleOrderConfirm() {
-        try {
-          const res = await confirmOrder({
-            action: orderConfirmActionMap[this.data.orderStatus],
-            orderNo: this.data.orderNo,
-            merchantRemark: this.remark
-          })
-          if (res.error) {
-            throw new Error(res.error.message)
-          } else {
-            this.$emit('confirm')
-          }
-        } catch (err) {
-          Message.error(err.message)
-        }
+        this.$emit('confirm', this.data, this.remark)
       }
     }
   }

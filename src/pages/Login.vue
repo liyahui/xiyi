@@ -2,10 +2,10 @@
   <div :class="$style.wrapper">
     <el-form :class="$style.form" :model="model" :rules="rules" ref="form">
       <el-form-item prop="loginName">
-        <el-input placeholder="用户名" v-model="model.loginName"/>
+        <el-input placeholder="用户名" v-model="model.loginName" @keydown.enter.native="handleSubmit"/>
       </el-form-item>
       <el-form-item prop="pwd">
-        <el-input placeholder="密码" type="password" v-model="model.pwd"/>
+        <el-input placeholder="密码" type="password" v-model="model.pwd" @keydown.enter.native="handleSubmit"/>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :class="$style.button" @click="handleSubmit">登 录</el-button>
@@ -15,11 +15,20 @@
 </template>
 
 <script>
-  import {Message} from 'element-ui'
+  import {Message, Form, FormItem, Input, Button} from 'element-ui'
   import {login} from '../api'
   import * as store from '../utils/store'
+  import {registerElementUI} from '../utils'
 
   export default {
+    components: {
+      ...registerElementUI([
+        Form,
+        FormItem,
+        Input,
+        Button
+      ])
+    },
     data() {
       return {
         model: {

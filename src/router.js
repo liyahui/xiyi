@@ -9,12 +9,12 @@ const router = new Router({
     {
       path: '/',
       name: 'order',
-      component: () => import('./pages/Order')
+      component: () => import(/* webpackChunkName: 'order' */ './pages/Order')
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('./pages/Login')
+      component: () => import(/* webpackChunkName: 'login' */ './pages/Login')
     }
   ]
 })

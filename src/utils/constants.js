@@ -1,6 +1,6 @@
 export const orderStatusList = [
   {
-    value: 0,
+    value: 1,
     label: '待确认'
   },
   {
@@ -12,11 +12,11 @@ export const orderStatusList = [
     label: '待取衣'
   },
   {
-    value: 3,
+    value: 4,
     label: '洗涤中'
   },
   {
-    value: 4,
+    value: 6,
     label: '已完成'
   }
 ]

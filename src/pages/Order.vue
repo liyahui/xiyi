@@ -16,8 +16,9 @@
               {{status.label}}
             </el-radio-button>
           </el-radio-group>
-          <el-input placeholder="请输入取衣码或手机号" :class="$style.search" v-model.trim="keyword" clearable
-                    @clear="getPageData">
+          <el-input
+            placeholder="请输入取衣码或手机号" :class="$style.search" v-model.trim="keyword" clearable @clear="getPageData"
+          >
             <el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>
           </el-input>
           <el-button-group :class="$style.page">
@@ -39,37 +40,84 @@
             </el-table-column>
             <el-table-column prop="count" label="图片">
               <template slot-scope="scope">
-                <el-image v-for="photo in scope.row.photoList" :src="photo" :key="photo" :class="$style.image"
-                          fit="cover" :preview-src-list="scope.row.photoList"/>
+                <el-image
+                  v-for="photo in scope.row.photoList"
+                  :src="photo"
+                  :key="photo"
+                  :class="$style.image"
+                  fit="cover"
+                  :preview-src-list="scope.row.photoList"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="count" label="数量" width="100"/>
             <el-table-column prop="createTime" label="时间" width="180"/>
+            <el-table-column prop="count" label="操作" width="150" v-if="showOperate">
+              <template slot-scope="scope">
+                <el-button type="primary" size="medium" @click="handleOrderConfirm(scope.row)">
+                  确认收到衣服
+                </el-button>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </el-main>
     </el-container>
-    <el-drawer :visible.sync="detailShow" width="auto" title="详情" custom-class="detail-drawer"
-               @closed="detailData = {}">
+    <el-drawer
+      :visible.sync="detailShow" width="auto" title="详情" custom-class="detail-drawer" @closed="detailData = {}"
+    >
       <Detail :data="detailData" :loading="detailLoading" @confirm="handleOrderConfirm"/>
     </el-drawer>
   </div>
 </template>
 
 <script>
-  import {Message} from 'element-ui'
+  import {
+    Message,
+    Container,
+    Header,
+    Main,
+    RadioGroup,
+    RadioButton,
+    Input,
+    ButtonGroup,
+    Button,
+    Table,
+    TableColumn,
+    Drawer,
+    Image,
+    Dialog
+  } from 'element-ui'
   import * as store from '../utils/store'
-  import {getOrderList, getOrderDetail} from '../api'
+  import {getOrderList, getOrderDetail, confirmOrder} from '../api'
   import Detail from '../components/Detail'
-  import {orderStatusList} from '../utils/constants'
-
+  import {orderStatusList, orderConfirmActionMap} from '../utils/constants'
+  import {registerElementUI} from '../utils'
 
   export default {
+    components: {
+      ...registerElementUI([
+        Container,
+        Header,
+        Main,
+        RadioGroup,
+        RadioButton,
+        Input,
+        ButtonGroup,
+        Button,
+        Table,
+        TableColumn,
+        Drawer,
+        Image,
+        Dialog
+      ]),
+      Detail
+    },
     data() {
       return {
         loading: false,
         orderStatusList,
-        orderStatus: 0,
+        orderStatus: 1,
         orderList: [],
         pageNo: 1,
         pageSize: 10,
@@ -77,11 +125,9 @@
         detailLoading: false,
         detailShow: false,
         hasNext: true,
-        keyword: ''
+        keyword: '',
+        showOperate: true
       }
-    },
-    components: {
-      Detail
     },
     computed: {
       title() {
@@ -91,6 +137,7 @@
     },
     methods: {
       handleStatusChange() {
+        this.showOperate = [1, 5].includes(this.orderStatus)
         this.pageNo = 1
         this.getPageData()
       },
@@ -153,9 +200,22 @@
           this.detailLoading = false
         }
       },
-      async handleOrderConfirm() {
-        this.detailShow = false
-        this.getPageData()
+      async handleOrderConfirm({orderNo, orderStatus}, merchantRemark = '') {
+        try {
+          const res = await confirmOrder({
+            action: orderConfirmActionMap[orderStatus],
+            orderNo,
+            merchantRemark
+          })
+          if (res.error) {
+            throw new Error(res.error.message)
+          } else {
+            this.detailShow = false
+            this.getPageData()
+          }
+        } catch (err) {
+          Message.error(err.message)
+        }
       },
       handleLogout() {
         store.remove('merchant')
